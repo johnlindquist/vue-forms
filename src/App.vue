@@ -1,60 +1,64 @@
 <template>
   <div id="app">
-    <img src="./assets/logo.png">
-    <h1>{{ msg }}</h1>
-    <h2>Essential Links</h2>
+    <form @submit.prevent="onSubmit">
+      <input type="text" v-model="name">
+      <button type="submit">Add</button>
+    </form>
     <ul>
-      <li><a href="https://vuejs.org" target="_blank">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank">Forum</a></li>
-      <li><a href="https://gitter.im/vuejs/vue" target="_blank">Gitter Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank">Twitter</a></li>
+      <li v-for="person in people" :key="person.id">
+        {{person.name}}
+      </li>
     </ul>
-    <h2>Ecosystem</h2>
-    <ul>
-      <li><a href="http://router.vuejs.org/" target="_blank">vue-router</a></li>
-      <li><a href="http://vuex.vuejs.org/" target="_blank">vuex</a></li>
-      <li><a href="http://vue-loader.vuejs.org/" target="_blank">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank">awesome-vue</a></li>
-    </ul>
+
   </div>
 </template>
 
 <script>
+import axios from "axios"
+const http = axios.create({
+  baseURL: `http://localhost:4000`
+})
+
 export default {
   name: 'app',
-  data () {
+  data() {
     return {
-      msg: 'Welcome to Your Vue.js App'
+      name: "",
+      people: []
     }
+  },
+  methods: {
+    async onSubmit() {
+      const person = { name: this.name }
+      const response = (await http.post("people", person)).data
+      this.people = [...this.people, response]
+      this.name = ""
+    }
+  },
+  async mounted() {
+    this.people = (await http.get("people")).data
   }
 }
 </script>
 
 <style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+* {
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+  font-size: 1em;
 }
 
-h1, h2 {
-  font-weight: normal;
+#app {
+  padding: 3em;
+  margin: 2em;
+  outline: .5em solid black;
 }
 
 ul {
-  list-style-type: none;
   padding: 0;
 }
 
 li {
-  display: inline-block;
+  list-style: none;
   margin: 0 10px;
-}
-
-a {
-  color: #42b983;
 }
 </style>
